@@ -1,42 +1,91 @@
 require('dotenv').config();
+const fs = require('fs');
 const cmdUtil = require ('./util');
-
 const Discord = require('discord.js');
+
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+
+	// set a new item in the Collection
+	// with the key as the command name and the value as the exported module
+	client.commands.set(command.name, command);
+}
+
+const cooldowns = new Discord.Collection();
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('message', msg => {
-  if (msg.content.toLowerCase() === 'good bot') {
-    msg.channel.send(cmdUtil.goodBot());
+client.on('message', message => {
+
+  //Needs to be refactored out
+  if (message.content.toLowerCase() === 'good bot') {
+    message.channel.send(cmdUtil.goodBot());
   }
+  //Needs to be refactored out
 
   //commands all require a ! in front, otherwise exit the event listener
-  if (!msg.content.startsWith(cmdUtil.getPrefix()) || msg.author.bot) return;
+  if (!message.content.startsWith(cmdUtil.getPrefix()) || message.author.bot) return;
 
-  const args = msg.content.slice(cmdUtil.getPrefix().length).trim().split(' ');
-  const cmd = args.shift().toLowerCase();
-  let response = '';
+  const args = message.content.slice(cmdUtil.getPrefix().length).trim().split(/ +/);
+  const cmdName = args.shift().toLowerCase();
+  
+  //Get command, and check for command aliases
+  const command = client.commands.get(
+    cmdName) || 
+    client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(cmdName)
+  );
+  if (!command) return;
 
-  if (cmd === 'help') {
-    response = cmdUtil.helpCommandAll();
+  //If a command disallows DM execution, let the user know
+  if (command.guildOnly && message.channel.type === 'dm') {
+    return message.reply(`I'm sorry ${message.author}, I'm afraid I can't do that here. http://gph.is/28RqP3Q`);
   }
-  else if (cmd.toLowerCase() === 'adddoggo') {
-    if (!!args && args.length !== 1) {
-      response = 'Sorry, I\'m confused. Here\'s what I need to do this:\n';
-      response += (cmdUtil.helpCommand('addDoggo'));
+
+  //Validate arguments before executing
+  if (command.args && !args.length) {
+    let reply = `I need more information, ${message.author}!`;
+    
+    if (command.usage) {
+      reply += `\nHere's what I need to know: \`${prefix}${command.name} ${command.usage}\``;
     }
-    else {
-      cmdUtil.addDoggo(args[0]);
-    }
+    
+    return message.channel.send(reply);
   }
-  else {
-    response = "How did you manage to submit a null value?! This is going in the log!"
+
+  //Check if the command is still in cooldown for that user
+  if (!cooldowns.has(command.name)) {
+    cooldowns.set(command.name, new Discord.Collection());
   }
   
-  response && msg.channel.send(response);
+  const now = Date.now();
+  const timestamps = cooldowns.get(command.name);
+  const cooldownAmount = (command.cooldown || process.env.COOLDOWN_DEFAULT) * 1000;
+  
+  if (timestamps.has(message.author.id)) {
+    const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+    if (now < expirationTime) {
+      const timeLeft = (expirationTime - now) / 1000;
+      return message.reply(`I need a quick break, how about giving me ${timeLeft.toFixed(1)} more second(s) to catch my breath before I run \`${command.name}\`?`);
+    }
+  } else {
+    timestamps.set(message.author.id, now);
+    setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+  }
+
+  //Run the command
+  try {
+    command.execute(message, args);
+  } catch (error) {
+    console.error(error);
+    message.reply('I don\'t know how to do that. Try !help so I can understand better.');
+  }
 });
 
 client.login(process.env.BOT_TOKEN);

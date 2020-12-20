@@ -88,7 +88,7 @@ client.on('message', message => {
     command.execute(message, args);
   } catch (error) {
     console.error(error);
-    message.reply('I don\'t know how to do that. Try !help so I can understand better.');
+    message.reply(`I don't know how to do that. Try !help ${command.name} so I can understand better.`);
   }
 });
 

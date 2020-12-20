@@ -1,20 +1,17 @@
 {
     "prefix": "!",
-    "commands": [
-        {
-            "command": "help",
+    "commands": {
+        "help" : {
             "params": "",
             "desc": "Lists all the commands"
         },
-        {
-            "command": "addDoggo",
+        "addDoggo": {
             "params": "<url>",
             "desc": "Add a giphy response to the Good Bot command"
         },
-        {
-            "command": "removeDoggo",
+        "removeDoggo": {
             "params": "<url>",
             "desc": "Remove a giphy response to the Good Bot command"
         }
-    ]
+    }
 }

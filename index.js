@@ -1,6 +1,7 @@
 require('dotenv').config();
+const prefix = process.env.CMD_PREFIX;
 const fs = require('fs');
-const cmdUtil = require ('./util');
+// const cmdUtil = require ('./util');
 const Discord = require('discord.js');
 
 const client = new Discord.Client();
@@ -22,18 +23,22 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
+  //Commands all require a ! in front, otherwise exit the event listener
+  //Exception added for "Good bot" command (no prefix)
+  //TO DO: Refactor exception commands into an array, if more are added later
+  if ((!message.content.startsWith(prefix)
+    && message.content.toLowerCase() !== 'good bot')
+    || message.author.bot) return;
 
-  //Needs to be refactored out
-  if (message.content.toLowerCase() === 'good bot') {
-    message.channel.send(cmdUtil.goodBot());
+  let args;
+  let cmdName;
+  if (message.content.toLowerCase() !== 'good bot') {
+    args = message.content.slice(prefix.length).trim().split(/ +/);
+    cmdName = args.shift().toLowerCase();
+  } else {
+    args = [];
+    cmdName = 'good bot';
   }
-  //Needs to be refactored out
-
-  //commands all require a ! in front, otherwise exit the event listener
-  if (!message.content.startsWith(cmdUtil.getPrefix()) || message.author.bot) return;
-
-  const args = message.content.slice(cmdUtil.getPrefix().length).trim().split(/ +/);
-  const cmdName = args.shift().toLowerCase();
   
   //Get command, and check for command aliases
   const command = client.commands.get(

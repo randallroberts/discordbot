@@ -1,6 +1,16 @@
+const fs = require('fs');
 const commandList = require('./data/commands.json');
-const goodBot = require('./data/goodBot.json');
+let goodBot = require('./data/goodBot.json');
 const prefix = commandList['prefix'];
+
+function addGoodBot(url) {
+    goodBot['answers'].push(url);
+    fs.writeFile("./data/goodBot.json", JSON.stringify(goodBot), (err, data) => {
+        if(err) {
+            console.error("File not found, or the write failed", err);
+        }
+    });
+}
 
 function getCommand(cmd) {
     return commandList['commands'][cmd];
@@ -15,6 +25,12 @@ function helpCommand (cmd) {
 }
 
 module.exports = {
+
+    addDoggo: (url) => {
+        addGoodBot(url);
+        return "Oh boy, oh boy, oh boy!";
+    },
+
     getPrefix: () => {
         return prefix;
     },

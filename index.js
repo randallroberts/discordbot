@@ -28,6 +28,9 @@ client.on('message', msg => {
       response = 'Sorry, I\'m confused. Here\'s what I need to do this:\n';
       response += (cmdUtil.helpCommand('addDoggo'));
     }
+    else {
+      cmdUtil.addDoggo(args[0]);
+    }
   }
   else {
     response = "How did you manage to submit a null value?! This is going in the log!"

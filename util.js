@@ -8,6 +8,9 @@ function addGoodBot(url) {
     fs.writeFile("./data/goodBot.json", JSON.stringify(goodBot), (err, data) => {
         if(err) {
             console.error("File not found, or the write failed", err);
+            return false;
+        } else {
+            return true;
         }
     });
 }
@@ -27,8 +30,11 @@ function helpCommand (cmd) {
 module.exports = {
 
     addDoggo: (url) => {
-        addGoodBot(url);
-        return "Oh boy, oh boy, oh boy!";
+        return addGoodBot(url) ? "Oh boy, oh boy, oh boy!" : 'Uh oh, that didn\'t work...';
+    },
+
+    getCommands: () => {
+        return Object.entries(commandList['commands']);
     },
 
     getPrefix: () => {

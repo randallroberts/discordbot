@@ -33,7 +33,7 @@ client.on('message', msg => {
     response = "How did you manage to submit a null value?! This is going in the log!"
   }
   
-  msg.channel.send(response);
+  response && msg.channel.send(response);
 });
 
 client.login(process.env.BOT_TOKEN);

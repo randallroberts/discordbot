@@ -8,7 +8,6 @@ module.exports = {
 	execute(message, args) {
         let response = '* Create Channel (require 4+ votes for, by counting emojis)\n';
         response += '* Anonymous feedback, possibly added to this to-do list (Can be done by PM for privacy)\n';
-        response += '* Test DM disallow (Hal gif loads correctly?)\n';
         response += '* Test cooldown default vs specific cooldowns\n';
 
 		message.channel.send(response);

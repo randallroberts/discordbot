@@ -2,6 +2,7 @@ module.exports = {
 	name: 'deleterole',
     description: 'Delete a role (remove all members first)',
     usage: '[@role]',
+    guildOnly: true,
 	execute(message, args) {
         const role = message.mentions.roles.first();
         if (!role) throw 'Incorrect parameters';

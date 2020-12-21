@@ -2,6 +2,7 @@ module.exports = {
 	name: 'createrole',
     description: 'Create a new role (no spaces)',
     usage: '[role]',
+    guildOnly: true,
 	execute(message, args) {
         if (!Array.isArray(args) || args.length !== 1) throw 'Incorrect parameters';
 

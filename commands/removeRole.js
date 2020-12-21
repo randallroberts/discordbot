@@ -3,6 +3,7 @@ module.exports = {
     aliases: ['remrole'],
     description: 'Remove a user from a role',
     usage: '[@role] [@user]',
+    guildOnly: true,
 	execute(message, args) {
         const user = message.mentions.members.first();
         const role = message.mentions.roles.first();

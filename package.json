@@ -7,7 +7,7 @@
     "start": "node index.js"
   },
   "engines": {
-    "node": "*",
+    "node": "15.x",
     "npm": "*"
   },
   "author": "Randall Roberts",
